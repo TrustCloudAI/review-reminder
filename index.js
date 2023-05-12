@@ -6,6 +6,7 @@ const run = async () => {
     const token = core.getInput('token', { required: true });
     const reviewComment = core.getInput('reminder-comment');
     const daysBeforeReminder = core.getInput('days-before-reminder');
+    const reviewLabel = core.getInput('review-label');
 
     const octokit = github.getOctokit(token);
     const { GITHUB_REPOSITORY_OWNER: owner, GITHUB_REPOSITORY } = process.env;
@@ -21,6 +22,15 @@ const run = async () => {
           issue_number: number,
           body: `Hey ${requestedReviewersLogin} ! ${reviewComment}`,
         });
+
+        if (reviewLabel) {
+          octokit.issues.addLabels({
+              owner,
+              repo,
+              issue_number: number,
+              labels: [reviewLabel],
+          });
+        }
       }
     });
   } catch (error) {
