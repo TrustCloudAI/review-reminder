@@ -7,6 +7,7 @@ const run = async () => {
     const reviewComment = core.getInput('reminder-comment');
     const daysBeforeReminder = core.getInput('days-before-reminder');
     const reminderLabel = core.getInput('reminder-label');
+    const requiredLabel = core.getInput('required-label');
 
     const octokit = github.getOctokit(token);
     const { GITHUB_REPOSITORY_OWNER: owner, GITHUB_REPOSITORY } = process.env;
@@ -17,11 +18,19 @@ const run = async () => {
       core.info(`Processing PR #${number} with updated date of: ${updated_at}`);
       if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder) && !draft) {
         core.info(`Sending reminder to PR #${number}`);
-        if (reminderLabel != null) {
+        if (reminderLabel) {
             const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
             if (isLabelAlreadyAdded) {
               core.info(`Reminder label already added to PR #${number}`);
                 return;
+            }
+
+            if (requiredLabel) {
+                const isRequiredLabelPresent = labels.find(label => label.name === requiredLabel);
+                if (!isRequiredLabelPresent) {
+                    core.info(`Required label present, skipping PR #${number}`);
+                    return;
+                }
             }
         }
 
