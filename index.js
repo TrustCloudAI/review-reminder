@@ -13,8 +13,8 @@ const run = async () => {
     const repo = GITHUB_REPOSITORY.split('/')[1];
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
-    data.forEach(({ requested_reviewers, updated_at, number }) => {
-      if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder)) {
+    data.forEach(({ requested_reviewers, pushed_at, number }) => {
+      if (requested_reviewers.length && rightTimeForReminder(pushed_at, daysBeforeReminder)) {
         const requestedReviewersLogin = requested_reviewers.map(r => `@${r.login}`).join(', ');
         octokit.issues.createComment({
           owner,
