@@ -14,13 +14,13 @@ const run = async () => {
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
     data.forEach(({ requested_reviewers, pushed_at, number, labels }) => {
-      console.log(`Processing PR #${number} with pushed date of: ${pushed_at}`);
+      core.info(`Processing PR #${number} with pushed date of: ${pushed_at}`);
       if (requested_reviewers.length && rightTimeForReminder(pushed_at, daysBeforeReminder)) {
-        console.log(`Sending reminder to PR #${number}`);
+        core.info(`Sending reminder to PR #${number}`);
         if (reminderLabel != null) {
             const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
             if (isLabelAlreadyAdded) {
-              console.log(`Reminder label already added to PR #${number}`);
+              core.info(`Reminder label already added to PR #${number}`);
                 return;
             }
         }
@@ -42,7 +42,7 @@ const run = async () => {
           });
         }
       } else {
-        console.log(`No need to send a reminder to PR #${number}`);
+        core.info(`No need to send a reminder to PR #${number}`);
       }
     });
   } catch (error) {
