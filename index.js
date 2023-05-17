@@ -13,9 +13,9 @@ const run = async () => {
     const repo = GITHUB_REPOSITORY.split('/')[1];
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
-    data.forEach(({ requested_reviewers, pushed_at, number, labels }) => {
-      core.info(`Processing PR #${number} with pushed date of: ${pushed_at}`);
-      if (requested_reviewers.length && rightTimeForReminder(pushed_at, daysBeforeReminder)) {
+    data.forEach(({ requested_reviewers, updated_at, number, labels, draft }) => {
+      core.info(`Processing PR #${number} with updated date of: ${updated_at}`);
+      if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder) && !draft) {
         core.info(`Sending reminder to PR #${number}`);
         if (reminderLabel != null) {
             const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
