@@ -13,8 +13,15 @@ const run = async () => {
     const repo = GITHUB_REPOSITORY.split('/')[1];
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
-    data.forEach(({ requested_reviewers, pushed_at, number }) => {
+    data.forEach(({ requested_reviewers, pushed_at, number, labels }) => {
       if (requested_reviewers.length && rightTimeForReminder(pushed_at, daysBeforeReminder)) {
+        if (reminderLabel != null) {
+            const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
+            if (isLabelAlreadyAdded) {
+                return;
+            }
+        }
+
         const requestedReviewersLogin = requested_reviewers.map(r => `@${r.login}`).join(', ');
         octokit.issues.createComment({
           owner,
