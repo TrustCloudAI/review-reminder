@@ -14,7 +14,7 @@ const run = async () => {
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
     data.forEach(({ requested_reviewers, pushed_at, number, labels }) => {
-      console.log(`Processing PR #${number}`);
+      console.log(`Processing PR #${number} with pushed date of: ${pushed_at}`);
       if (requested_reviewers.length && rightTimeForReminder(pushed_at, daysBeforeReminder)) {
         console.log(`Sending reminder to PR #${number}`);
         if (reminderLabel != null) {
