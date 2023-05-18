@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const asyncJS = require('async');
 
 const run = async () => {
   try {
@@ -14,28 +15,28 @@ const run = async () => {
     const repo = GITHUB_REPOSITORY.split('/')[1];
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
-    data.forEach(({ requested_reviewers, updated_at, number, labels, draft }) => {
-      core.info(`Processing PR #${number} with updated date of: ${updated_at}`);
+    await asyncJS.each(data, async ({ requested_reviewers, updated_at, number, labels, draft }) => {
+      await core.log.info(`Processing PR #${number} with updated date of: ${updated_at}`);
       if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder) && !draft) {
-        core.info(`Sending reminder to PR #${number}`);
+        core.log.info(`Sending reminder to PR #${number}`);
         if (reminderLabel) {
             const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
             if (isLabelAlreadyAdded) {
-              core.info(`Reminder label already added to PR #${number}`);
+              core.log.info(`Reminder label already added to PR #${number}`);
                 return;
             }
 
             if (requiredLabel) {
                 const isRequiredLabelPresent = labels.find(label => label.name === requiredLabel);
                 if (!isRequiredLabelPresent) {
-                    core.info(`Required label present, skipping PR #${number}`);
+                    core.log.info(`Required label present, skipping PR #${number}`);
                     return;
                 }
             }
         }
 
         const requestedReviewersLogin = requested_reviewers.map(r => `@${r.login}`).join(', ');
-        octokit.issues.createComment({
+        await octokit.issues.createComment({
           owner,
           repo,
           issue_number: number,
@@ -43,7 +44,7 @@ const run = async () => {
         });
 
         if (reminderLabel) {
-          octokit.issues.addLabels({
+          await octokit.issues.addLabels({
               owner,
               repo,
               issue_number: number,
@@ -51,7 +52,7 @@ const run = async () => {
           });
         }
       } else {
-        core.info(`No need to send a reminder to PR #${number}`);
+        core.log.info(`No need to send a reminder to PR #${number}`);
       }
     });
   } catch (error) {

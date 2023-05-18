@@ -17,6 +17,7 @@ inputs:
     required: false
   required-label:
     description: 'Label that is required to already exist to send this reminder'
+    required: false
   days-before-reminder:
     description: 'The number of days before the requested reviewers will receive a reminder'
     default: '1'
