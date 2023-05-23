@@ -16,20 +16,20 @@ const run = async () => {
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
     await asyncJS.each(data, async ({ requested_reviewers, updated_at, number, labels, draft }) => {
-      await core.log.info(`Processing PR #${number} with updated date of: ${updated_at}`);
+      await core.info(`Processing PR #${number} with updated date of: ${updated_at}`);
       if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder) && !draft) {
-        core.log.info(`Sending reminder to PR #${number}`);
+        core.info(`Sending reminder to PR #${number}`);
         if (reminderLabel) {
             const isLabelAlreadyAdded = labels.find(label => label.name === reminderLabel);
             if (isLabelAlreadyAdded) {
-              core.log.info(`Reminder label already added to PR #${number}`);
+              core.info(`Reminder label already added to PR #${number}`);
                 return;
             }
 
             if (requiredLabel) {
                 const isRequiredLabelPresent = labels.find(label => label.name === requiredLabel);
                 if (!isRequiredLabelPresent) {
-                    core.log.info(`Required label present, skipping PR #${number}`);
+                    core.info(`Required label present, skipping PR #${number}`);
                     return;
                 }
             }
@@ -52,7 +52,7 @@ const run = async () => {
           });
         }
       } else {
-        core.log.info(`No need to send a reminder to PR #${number}`);
+        core.info(`No need to send a reminder to PR #${number}`);
       }
     });
   } catch (error) {
