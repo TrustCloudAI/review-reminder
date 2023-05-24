@@ -23,7 +23,7 @@ const run = async () => {
     const { data } = await octokit.pulls.list({ owner, repo, state: 'open' });
 
     await asyncJS.each(data, async ({ requested_reviewers, updated_at, number, labels, draft }) => {
-      await core.info(`Processing PR #${number}, draft: ${draft}, with updated date of: ${updated_at}, to ${requested_reviewers.length} requested reviewers.  rightTimeForReminder: ${rightTimeForReminder(updated_at, daysBeforeReminder)}`);
+      await core.info(`Processing PR #${number}, draft: ${draft}, with updated date of: ${updated_at}, to ${requested_reviewers} requested reviewers.  rightTimeForReminder: ${rightTimeForReminder(updated_at, daysBeforeReminder)}`);
       if (requested_reviewers.length && rightTimeForReminder(updated_at, daysBeforeReminder) && !draft) {
         core.info(`Sending reminder to PR #${number}`);
         if (reminderLabel) {
